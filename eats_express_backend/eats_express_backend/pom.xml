@@ -12,7 +12,7 @@
 	<groupId>com.example</groupId>
 	<artifactId>spring_boot_backend_template</artifactId>
 	<version>0.0.1</version>
-	<name>eats_express_15_08_24</name>
+	<name>organic_eats_express_backend</name>
 	<description>Template Project for Spring Boot based Backend </description>
 	<properties>
 		<java.version>11</java.version>

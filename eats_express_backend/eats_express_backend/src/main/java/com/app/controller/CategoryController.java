@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,24 +33,40 @@ public class CategoryController {
 	
 	@PostMapping
 	private ResponseEntity<?> addCat(@RequestBody CatDTO catDTO) {
+		try {
 		Category cat = modelMapper.map(catDTO, Category.class);
 		return ResponseEntity.ok(catService.addCat(cat));
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 	@GetMapping
 	private ResponseEntity<?> getCat() { 
+		try {
 		List<Category> list = catService.getCat();
 		List<CatDTO> collect = list.stream().map(category -> modelMapper.map(category, CatDTO.class)).collect(Collectors.toList());	
 		return ResponseEntity.ok(collect) ;
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 	@GetMapping("/{catid}")
-	private ResponseEntity<CatDTO> getCatById(@PathVariable Long catid){
+	private ResponseEntity<?> getCatById(@PathVariable Long catid){
+		try {
 		Category cat = catService.getById(catid);
 		CatDTO dto = modelMapper.map(cat, CatDTO.class); 
 		return ResponseEntity.ok(dto);
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 	@DeleteMapping("/{cid}")
-	private ResponseEntity<ApiResponse> delCat(@PathVariable Long cid){
+	private ResponseEntity<?> delCat(@PathVariable Long cid){
+		try {
 		return ResponseEntity.ok(catService.delCat(cid));
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 	
 	

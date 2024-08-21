@@ -29,44 +29,62 @@ public class CartController {
 	private CartService cartService;
 
 	@PostMapping("/public/carts/{cartId}/products/{ProductId}/quantity/{quantity}")
-	public ResponseEntity<CartDTO> addProductToCart(@PathVariable Long cartId, @PathVariable Long ProductId, @PathVariable Integer quantity) {
+	public ResponseEntity<?> addProductToCart(@PathVariable Long cartId, @PathVariable Long ProductId, @PathVariable Integer quantity) {
+		try {
 		CartDTO cartDTO = cartService.addProductToCart(cartId, ProductId, quantity);
 		System.out.println("Success-------------------------");
 		return new ResponseEntity<CartDTO>(cartDTO, HttpStatus.CREATED);
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 
 	@GetMapping
-	public ResponseEntity<List<CartDTO>> getCarts() {
-		
+	public ResponseEntity<?> getCarts() {
+		try {
 		List<CartDTO> cartDTOs = cartService.getAllCarts();
-		
 		return new ResponseEntity<List<CartDTO>>(cartDTOs, HttpStatus.FOUND);
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 	
 	@GetMapping("/user/{emailId}")
-	public ResponseEntity<CartDTO> getCartByUserId(@PathVariable String emailId) {
+	public ResponseEntity<?> getCartByUserId(@PathVariable String emailId) {
+		try {
 		CartDTO cartDTO = cartService.getCart(emailId);
-		
 		return new ResponseEntity<CartDTO>(cartDTO, HttpStatus.FOUND);
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 	@GetMapping("/{cartId}")
-	public ResponseEntity<CartDTO> getCartById(@PathVariable Long cartId) {
+	public ResponseEntity<?> getCartById(@PathVariable Long cartId) {
+		try {
 		CartDTO cartDTO = cartService.getCartById(cartId);
-		
 		return  ResponseEntity.ok(cartDTO);
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 	@GetMapping("/cartitems/{cartId}")
-	public ResponseEntity<List<CartItemDTO>> getCartItems(@PathVariable Long cartId) {
+	public ResponseEntity<?> getCartItems(@PathVariable Long cartId) {
+		try {
 		List<CartItemDTO> cartItemDTO = cartService.getCartItemsById(cartId);
-		
 		return  ResponseEntity.ok(cartItemDTO);
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 
 	@PutMapping("/updateItems/cartitemid/{cartItemId}/productid/{Productid}/quantity/{quant}")
-	public ResponseEntity<ApiResponse> updateCartItems(@PathVariable Long cartItemId,@PathVariable Long Productid,@PathVariable Integer quant) {
+	public ResponseEntity<?> updateCartItems(@PathVariable Long cartItemId,@PathVariable Long Productid,@PathVariable Integer quant) {
+		try{
 		ApiResponse api = cartService.updateItems(cartItemId,Productid,quant);
-		
 		return  ResponseEntity.ok(api);
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 	
 //	@PutMapping("/public/carts/{cartId}/products/{productId}/quantity/{quantity}")
@@ -77,10 +95,13 @@ public class CartController {
 //	}
 	
 	@DeleteMapping("cartId/{cartId}/ProductId/{ProductId}")
-	public ResponseEntity<String> deleteProductFromCart(@PathVariable Long cartId, @PathVariable Long ProductId) {
+	public ResponseEntity<?> deleteProductFromCart(@PathVariable Long cartId, @PathVariable Long ProductId) {
+		try {
 		String status = cartService.deleteProductFromCart(cartId, ProductId);
-		
 		return new ResponseEntity<String>(status, HttpStatus.OK);
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 	
 //

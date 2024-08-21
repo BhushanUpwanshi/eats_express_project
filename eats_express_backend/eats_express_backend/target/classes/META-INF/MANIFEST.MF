@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Build-Jdk-Spec: 11
-Implementation-Title: eats_express_15_08_24
+Implementation-Title: organic_eats_express_backend
 Implementation-Version: 0.0.1
 Created-By: Maven Integration for Eclipse
 

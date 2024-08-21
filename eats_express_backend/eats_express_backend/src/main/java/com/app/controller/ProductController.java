@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -49,64 +50,90 @@ public class ProductController {
 	private UserService userService;
 
 	@PostMapping("/add")
-	private ResponseEntity<ApiResponse> addProduct(@RequestBody ProductDTO ProductDto) {
+	private ResponseEntity<?> addProduct(@RequestBody ProductDTO ProductDto) {
+		try {
 		Product Product = mapToEntity(ProductDto);
 		return ResponseEntity.ok(ProductService.addProduct(Product));
-
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 
 	@GetMapping
 	private ResponseEntity<?> getProducts() {
+		try {
 		List<Product> list2 = ProductService.getProducts();
 		List<ProductDTO> list = list2.stream().map(this::convertToDTO).collect(Collectors.toList());
-
 		return ResponseEntity.ok(list);
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 	@GetMapping("/getfavs/{userId}")
 	public ResponseEntity<?> getFavoriteProductsByUser(@PathVariable Long userId) {
+		try {
 		List<Product> list2 = favServ.getFavoriteProductsByUser(userId);
 		List<ProductDTO> list = list2.stream().map(this::convertToDTO).collect(Collectors.toList());
 		return ResponseEntity.ok(list);
-
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 
 	@GetMapping("/{pid}")
-	private ResponseEntity<productDTO2> getProduct(@PathVariable Long pid) {
+	private ResponseEntity<?> getProduct(@PathVariable Long pid) {
+		try {
 		Product Product1 = ProductService.getProduct(pid);
 		productDTO2 Product = mapper.map(Product1, productDTO2.class);
 		return ResponseEntity.ok(Product);
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 	@GetMapping("/productname/{productName}")
-	private ResponseEntity<productDTO2> getProduct(@PathVariable String productName) {
+	private ResponseEntity<?> getProduct(@PathVariable String productName) {
+		try {
 		System.out.println("--------------product by name------------"+productName);
 		Product Product1 = ProductService.getProductName(productName);
 		productDTO2 Product = mapper.map(Product1, productDTO2.class);
 		return ResponseEntity.ok(Product);
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 
 	@PostMapping("/addtofav/{pid}/{uid}")
 	private ResponseEntity<ApiResponse> addProduct(@PathVariable Long pid,@PathVariable Long uid) {
+		try {
 		ApiResponse api = ProductService.addToFav(pid, uid);
 		return ResponseEntity.ok(api);
-
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 
 	
 
 	@DeleteMapping("/delfav/{pid}/{uid}")
-	public void removeFavorite(@PathVariable Long uid, @PathVariable Long pid) {
-		System.out.println(uid);
-		System.out.println(pid);
+	public ResponseEntity<?>  removeFavorite(@PathVariable Long uid, @PathVariable Long pid) {
+		try {
 		FavouriteProducts favoriteProduct = favRepo.findAll().stream()
-				.filter(fb -> fb.getUser().getUserId().equals(uid) && fb.getProduct().getProductId().equals(pid))
+				.filter(fp -> fp.getUser().getUserId().equals(uid) && fp.getProduct().getProductId().equals(pid))
 				.findFirst().orElseThrow(() -> new RuntimeException("Favorite not found"));
-
 		favRepo.delete(favoriteProduct);
+		return ResponseEntity.ok("product removed from favourite");
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 
 	@DeleteMapping("/{pid}")
-	private ResponseEntity<ApiResponse> delProduct(@PathVariable Long pid) {
+	private ResponseEntity<?> delProduct(@PathVariable Long pid) {
+		try {
 		return ResponseEntity.ok(ProductService.delProduct(pid));
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 
 	private Product mapToEntity(ProductDTO ProductDto) {

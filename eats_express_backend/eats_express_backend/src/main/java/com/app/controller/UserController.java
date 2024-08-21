@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -47,6 +48,7 @@ public class UserController {
 	
 	@PostMapping
 	private ResponseEntity<ApiResponse> addUser(@RequestBody UserDTO userDTO) {
+		try {
 		User user = convertToEntity(userDTO);
 		Cart cart = new Cart();
 		user.setCart(cart);
@@ -54,39 +56,57 @@ public class UserController {
 		cart.setUser(user);
 		cartService.addCart(cart);
 		return ResponseEntity.ok(res);
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 	@GetMapping("/{id}")
-	private ResponseEntity<UserDTO> getUser(@PathVariable Long id){
+	private ResponseEntity<?> getUser(@PathVariable Long id){
+		try {
 		UserDTO dto = mapper.map(userService.getById(id), UserDTO.class);
 		return  ResponseEntity.ok(dto);
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 	@PostMapping("/login")
-	private ResponseEntity<UserDTO> getUserById(@RequestBody UserLoginDTO userlogin){
-		System.out.println(userlogin.getUsername());
-		System.out.println(userlogin.getPassword());
+	private ResponseEntity<?> getUserById(@RequestBody UserLoginDTO userlogin){
+		try {
 		UserDTO dto = userService.getUser(userlogin.getUsername(),userlogin.getPassword());
 		return  ResponseEntity.ok(dto);
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 	@GetMapping
 	private ResponseEntity<?> getUsers(){
+		try {
 		List<User> list = userService.getUsers();
 		List<UserDTO> dtos = list.stream().map(l->mapper.map(l, UserDTO.class)).collect(Collectors.toList());
 		return ResponseEntity.ok(dtos);
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 
 	@DeleteMapping("/{uid}")
-	private ResponseEntity<ApiResponse> delUser(@PathVariable Long uid) {
+	private ResponseEntity<?> delUser(@PathVariable Long uid) {
+		try {
 		ApiResponse api =  userService.delUser(uid);
 		return ResponseEntity.ok(api);
-		
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 	
 	@PostMapping("/update")
-	private ResponseEntity<ApiResponse> updateUser(@RequestBody UserDTO dto) {
-		System.out.println("----------------------");
+	private ResponseEntity<?> updateUser(@RequestBody UserDTO dto) {
+		try {
 		ApiResponse api =  userService.updateUser(dto);
 		return ResponseEntity.ok(api);
-		
+		}catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
 	}
 	
 	private User convertToEntity(UserDTO userDTO) {
